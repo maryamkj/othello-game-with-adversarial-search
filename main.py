@@ -1,7 +1,12 @@
 import copy
 
 EMPTY, BLACK, WHITE = 0, 1, 2
+CUTOFF = 14
 DIRECTIONS = ('up', 'down', 'right', 'left', 'upleft', 'upright', 'downleft', 'downright')
+DISCCOUNTWEIGHT = 0.01
+MOBILITYWEIGHT = 1
+CORNERWEIGHT = 10
+
 
 def initializeBoard(size):
     board = [[EMPTY for i in range(size)] for j in range(size)]
@@ -22,6 +27,16 @@ def showBoard(board):
         for j in range(size):
             print(board[i][j], "  ", end="")
         print("")
+
+
+def noOfEmptySquares(board):
+    number = 0
+    size = len(board)
+    for i in range(size):
+        for j in range(size):
+            if board[i][j] == EMPTY:
+                number += 1
+    return number
 
 
 def isEmpty(board, bracket):
@@ -191,8 +206,10 @@ def isTerminalState(board):
 
 
 def maxValue(board, player):
-    if isTerminalState(board):
-        return score(board, player)
+    # if isTerminalState(board):
+    if noOfEmptySquares(board) <= CUTOFF or  isTerminalState(board):
+        return heuristicEval(board, player)
+        # return score(board, player)
     temp = -float("inf")
     for action in legalMoves(board, player):
         if minValue(result(board, action), player) > temp:
@@ -201,13 +218,47 @@ def maxValue(board, player):
 
 
 def minValue(board, player):
-    if isTerminalState(board):
-        return score(board, player)
+    # if isTerminalState(board):
+    if noOfEmptySquares(board) <= CUTOFF or  isTerminalState(board):
+        return heuristicEval(board, player)
+        # return score(board, player)
     temp = float("inf")
     for action in legalMoves(board, getOpponent(player)):
         if maxValue((result(board, action), player)) < temp:
             temp = maxValue(result(board, action), player)
     return temp
+
+
+def heuristicEval(board, player):
+    return DISCCOUNTWEIGHT * noOfDiscs(board, player) + MOBILITYWEIGHT * len(legalMoves(board, player)) + CORNERWEIGHT * noOfCorners(board, player)
+
+
+def noOfDiscs(board, player):
+    number = 0
+    size = len(board)
+    for i in range(size):
+        for j in range(size):
+            if board[i][j] == player:
+                number += 1
+    return number
+
+
+def noOfCorners(board, player):
+    max = len(board) - 1
+    number = 0
+    if board[0][max] == player:
+        number += 1
+    if board[max][max] == player:
+        number += 1
+    if board[max][0] == player:
+        number += 1
+    if board[0][0] == player:
+        number += 1
+    return number
+
+
+
+
 
 playOthello()
 
