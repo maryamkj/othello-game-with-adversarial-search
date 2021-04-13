@@ -177,7 +177,7 @@ def score(board, player):
     return score
 
 
-def playOthello(counter, size=8):
+def playOthello(size=8):
     'plays othello using min max algorithm with alpha beta pruning. returns the final board'
     board = initializeBoard(size)
     print("initial board:")
@@ -185,7 +185,7 @@ def playOthello(counter, size=8):
     player = BLACK
     while player is not None:
         print("turn = ", showPlayer(player))
-        move = minmaxDecisionWithPruning(board, player, counter)
+        move = minMaxDecisionWithPruning(board, player)
         print("the selected move is = ", move)
         'pas minmax bayad khuneE ke mikhaym berim behesh ro bargardune'
         makeMove(move, board, player)
@@ -196,7 +196,6 @@ def playOthello(counter, size=8):
     showBoard(board)
     print("white's score =", score(board, WHITE))
     print("black's score =", score(board, BLACK))
-    print(counter)
     return board
 
 
@@ -214,36 +213,32 @@ def isTerminalState(board):
     return True if hasLegalMoves(WHITE, board) is False and hasLegalMoves(BLACK, board) is False else True
 
 
-def minmaxDecisionWithPruning(board, player, counter):
+def minMaxDecisionWithPruning(board, player):
     'returns an action for the player based on min max algorithm with pruning'
-    count = counter[0]
-    counter[0] = count + 1
     temp = -float("inf")
     alphabeta = [-float("inf"), float("inf")]
     for action in legalMoves(board, player):
-        if minValueWithPruning(result(board, action, player), player, alphabeta, counter) > temp:
+        if minValueWithPruning(result(board, action, player), player, alphabeta) > temp:
             selectedAction = action
-            temp = minValueWithPruning(result(board, action, player), player, alphabeta, counter)
+            temp = minValueWithPruning(result(board, action, player), player, alphabeta)
             if temp >= alphabeta[1]:
                 break;
             if temp > alphabeta[0]:
                 alphabeta[0] = temp
-    print("the decision is made. to a node with min value : ", temp)
+    print("the decision is made. to a node with value : ", temp)
     return selectedAction
 
 
-def maxValueWithPruning(board, player, alphabeta, counter):
+def maxValueWithPruning(board, player, alphabeta):
     'returns the value of max nodes based on min max algorithm with pruning'
-    count = counter[0]
-    counter[0] = count + 1
     # if isTerminalState(board):
     if noOfEmptySquares(board) <= CUTOFF:
         return heuristicEval(board, player)
         # return score(board, player)
     temp = -float("inf")
     for action in legalMoves(board, player):
-        if minValueWithPruning(result(board, action, player), player, alphabeta, counter) > temp:
-            temp = minValueWithPruning(result(board, action, player), player, alphabeta, counter)
+        if minValueWithPruning(result(board, action, player), player, alphabeta) > temp:
+            temp = minValueWithPruning(result(board, action, player), player, alphabeta)
         if temp >= alphabeta[1]:
             return temp
         if temp > alphabeta[0]:
@@ -251,10 +246,8 @@ def maxValueWithPruning(board, player, alphabeta, counter):
     return temp
 
 
-def minValueWithPruning(board, player, alphabeta, counter):
+def minValueWithPruning(board, player, alphabeta):
     'returns the value of min nodes based on min max algorithm with pruning'
-    count = counter[0]
-    counter[0] = count + 1
     # if isTerminalState(board):
     if noOfEmptySquares(board) <= CUTOFF:
         return heuristicEval(board, player)
@@ -262,8 +255,8 @@ def minValueWithPruning(board, player, alphabeta, counter):
     temp = float("inf")
     opponent = getOpponent(player)
     for action in legalMoves(board, opponent):
-        if maxValueWithPruning(result(board, action, opponent), player, alphabeta, counter) < temp:
-            temp = maxValueWithPruning(result(board, action, opponent), player, alphabeta, counter)
+        if maxValueWithPruning(result(board, action, opponent), player, alphabeta) < temp:
+            temp = maxValueWithPruning(result(board, action, opponent), player, alphabeta)
         if temp <= alphabeta[0]:
             return temp
         if temp < alphabeta[1]:
@@ -303,7 +296,7 @@ def noOfCorners(board, player):
     return number
 
 
-start = time.clock()
-playOthello([0], 8)
-end = time.clock()
+start = time.time()
+playOthello(8)
+end = time.time()
 print("run time :", str(end - start))
