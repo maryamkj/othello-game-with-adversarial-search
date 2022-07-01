@@ -208,6 +208,18 @@ def input_move_converter(move):
 
 def play_othello():
     'plays othello using min max algorithm with alpha beta pruning. returns the final board'
+
+    difficulty_level = int(
+        input("please choose a difficulty level\n0 for easy level\n1 for meduim level\n2 for hard level\n"))
+    if difficulty_level == 0:
+        depth = 3
+    elif difficulty_level == 1:
+        depth = 7
+    elif difficulty_level == 2:
+        depth = 11
+    else:
+        print("please make a wiser decision next time.\n")
+        return
     board = initialize_board()
     print("initial board:")
     show_board(board)
@@ -223,7 +235,7 @@ def play_othello():
                 print("you cannot make this move please try again.\n")
         else:
             print("\n\nplease wait for " + str(player) + "  to make a move. ")
-            move = min_max_decision_with_pruning(board)
+            move = min_max_decision_with_pruning(board, depth)
         print("the selected move is = ", print_move_converter(move))
         'minmax returns the location of the place we want to move in'
         make_move(move, board, player)
@@ -252,13 +264,14 @@ def is_terminal_state(board):
     return True if has_legal_moves(WHITE, board) is False and has_legal_moves(BLACK, board) is False else False
 
 
-def min_max_decision_with_pruning(board):
+def min_max_decision_with_pruning(board, depth):
     'returns an action for the black player (the agent) based on min max algorithm with pruning'
+
     temp = -float("inf")
     alphabeta = [-float("inf"), float("inf")]
     for action in legal_moves(board, BLACK):
         current = min_value_with_pruning(
-            result(board, action, BLACK), BLACK, alphabeta, 10)
+            result(board, action, BLACK), BLACK, alphabeta, depth)
         if current > temp:
             selected_action = action
             temp = current
@@ -274,6 +287,7 @@ def max_value_with_pruning(board, player, alphabeta, depth):
     'returns the value of max nodes based on min max algorithm with pruning'
     if depth == 0 or is_terminal_state(board) == True:
         return heuristic_evaluation(board, player)
+
     temp = -float("inf")
     for action in legal_moves(board, player):
         current = min_value_with_pruning(
