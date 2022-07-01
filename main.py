@@ -25,8 +25,13 @@ def initialize_board(size):
 def show_board(board):
     'prints the board'
     size = len(board)
+    for i in ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'):
+        print(" ", i, end="")
+    print("")
     for i in range(size):
         for j in range(size):
+            if j == 0:
+                print(i+1, end="")
             print(board[i][j], "", end="")
         print("")
 
@@ -182,6 +187,20 @@ def score(board):
     return score, oppscore
 
 
+def print_move_converter(move):
+    (i, j) = move
+    j = chr(ord("A") + j)
+    i = i+1
+    return(i, j)
+
+
+def input_move_converter(move):
+    (i, j) = move
+    j = int(ord(j) - ord("A"))
+    i = i-1
+    return(i, j)
+
+
 def play_othello(size=8):
     'plays othello using min max algorithm with alpha beta pruning. returns the final board'
     board = initialize_board(size)
@@ -191,7 +210,7 @@ def play_othello(size=8):
     while player is not None:
         print("\n\nplease wait for " + str(player) + "  to make a move ")
         move = min_max_decision_with_pruning(board, player)
-        print("the selected move is = ", move)
+        print("the selected move is = ", print_move_converter(move))
         'minmax returns the location of the place we want to move in'
         make_move(move, board, player)
         print("board after the selected move:")
@@ -208,10 +227,10 @@ def play_othello(size=8):
 def result(board, action, player):
     'returns a board after a player makes an action (action is a legal move/ bracket for a player)'
     'this method does not change the given board'
-    newBoard = copy.deepcopy(board)
+    new_board = copy.deepcopy(board)
     (i, j) = action
-    newBoard[i][j] = player
-    return newBoard
+    new_board[i][j] = player
+    return new_board
 
 
 def is_terminal_state(board):
