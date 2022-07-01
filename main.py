@@ -3,9 +3,9 @@ import time
 EMPTY, WHITE, BLACK = '🟩', '⬜', '⬛'
 DIRECTIONS = ('up', 'down', 'right', 'left', 'upleft',
               'upright', 'downleft', 'downright')
-DISCCOUNTWEIGHT = 0.01
+DISCCOUNTWEIGHT = 0.1
 MOBILITYWEIGHT = 1
-CORNERWEIGHT = 10
+CORNERWEIGHT = 5
 
 
 def initialize_board():
