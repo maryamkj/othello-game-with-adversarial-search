@@ -1,7 +1,6 @@
 import copy
 import time
 EMPTY, WHITE, BLACK = '🟩', '⬜', '⬛'
-CUTOFF = 50
 DIRECTIONS = ('up', 'down', 'right', 'left', 'upleft',
               'upright', 'downleft', 'downright')
 DISCCOUNTWEIGHT = 0.01
@@ -112,11 +111,11 @@ def get_cell(current, direction):
     return None
 
 
-def find_bracket(square, player, board, direction):
-    'returns the bracket b(if available), in a given direction from square,'
-    'such that the player should flip all the brackets in between square and'
+def find_bracket(cell, player, board, direction):
+    'returns the bracket b(if available), in a given direction from cell,'
+    'such that the player should flip all the brackets in between cell and'
     'b when making a move.'
-    bracket = get_cell(square, direction)
+    bracket = get_cell(cell, direction)
     (i, j) = bracket
     if is_valid(bracket) is False or board[i][j] == player:
         return None
@@ -250,7 +249,7 @@ def result(board, action, player):
 
 def is_terminal_state(board):
     'returns True if no legal moves can be made on the board'
-    return True if has_legal_moves(WHITE, board) is False and has_legal_moves(BLACK, board) is False else True
+    return True if has_legal_moves(WHITE, board) is False and has_legal_moves(BLACK, board) is False else False
 
 
 def min_max_decision_with_pruning(board):
@@ -259,7 +258,7 @@ def min_max_decision_with_pruning(board):
     alphabeta = [-float("inf"), float("inf")]
     for action in legal_moves(board, BLACK):
         current = min_value_with_pruning(
-            result(board, action, BLACK), BLACK, alphabeta)
+            result(board, action, BLACK), BLACK, alphabeta, 10)
         if current > temp:
             selected_action = action
             temp = current
@@ -271,14 +270,14 @@ def min_max_decision_with_pruning(board):
     return selected_action
 
 
-def max_value_with_pruning(board, player, alphabeta):
+def max_value_with_pruning(board, player, alphabeta, depth):
     'returns the value of max nodes based on min max algorithm with pruning'
-    if no_of_empty_cells(board) <= CUTOFF:
+    if depth == 0 or is_terminal_state(board) == True:
         return heuristic_evaluation(board, player)
     temp = -float("inf")
     for action in legal_moves(board, player):
         current = min_value_with_pruning(
-            result(board, action, player), player, alphabeta)
+            result(board, action, player), player, alphabeta, depth - 1)
         if current > temp:
             temp = current
         if temp >= alphabeta[1]:
@@ -288,16 +287,16 @@ def max_value_with_pruning(board, player, alphabeta):
     return temp
 
 
-def min_value_with_pruning(board, player, alphabeta):
+def min_value_with_pruning(board, player, alphabeta, depth):
     'returns the value of min nodes based on min max algorithm with pruning'
-    if no_of_empty_cells(board) <= CUTOFF:
+    if depth == 0 or is_terminal_state(board) == True:
         return heuristic_evaluation(board, player)
 
     temp = float("inf")
     opponent = get_opponent(player)
     for action in legal_moves(board, opponent):
         current = max_value_with_pruning(
-            result(board, action, opponent), player, alphabeta)
+            result(board, action, opponent), player, alphabeta, depth - 1)
         if current < temp:
             temp = current
         if temp <= alphabeta[0]:
@@ -325,13 +324,12 @@ def no_of_discs(board, player):
 
 def no_of_corners(board, player):
     'returns number of discs of a player in the corner of the board'
-    max = len(board) - 1
     number = 0
-    if board[0][max] == player:
+    if board[0][7] == player:
         number += 1
-    if board[max][max] == player:
+    if board[7][7] == player:
         number += 1
-    if board[max][0] == player:
+    if board[7][0] == player:
         number += 1
     if board[0][0] == player:
         number += 1
