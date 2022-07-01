@@ -1,20 +1,15 @@
 import copy
 import time
-EMPTY, WHITE, BLACK = '🟩', '⬜', '⬛'
-DIRECTIONS = ('up', 'down', 'right', 'left', 'upleft',
-              'upright', 'downleft', 'downright')
-DISCCOUNTWEIGHT = 0.1
-MOBILITYWEIGHT = 1
-CORNERWEIGHT = 5
+import constants as key
 
 
 def initialize_board():
     'returns an initialized othello board with size of 8*8'
-    board = [[EMPTY for i in range(8)] for j in range(8)]
-    board[3][3] = BLACK
-    board[3][4] = WHITE
-    board[4][3] = WHITE
-    board[4][4] = BLACK
+    board = [[key.EMPTY for i in range(8)] for j in range(8)]
+    board[3][3] = key.BLACK
+    board[3][4] = key.WHITE
+    board[4][3] = key.WHITE
+    board[4][4] = key.BLACK
     return board
 
 
@@ -36,7 +31,7 @@ def no_of_empty_cells(board):
     counter = 0
     for i in range(8):
         for j in range(8):
-            if board[i][j] == EMPTY:
+            if board[i][j] == key.EMPTY:
                 counter = counter + 1
     return counter
 
@@ -44,7 +39,7 @@ def no_of_empty_cells(board):
 def is_empty(board, bracket):
     'returns true if the given bracket is empty else returns false'
     (i, j) = bracket
-    if board[i][j] == EMPTY:
+    if board[i][j] == key.EMPTY:
         return True
     else:
         return False
@@ -61,17 +56,17 @@ def is_valid(bracket):
 
 def get_opponent(player):
     'returns the opponent of a player'
-    if player is WHITE:
-        return BLACK
+    if player is key.WHITE:
+        return key.BLACK
     else:
-        return WHITE
+        return key.WHITE
 
 
 def make_move(move, board, player):
     'changes the board and return it after a player chooses a move'
     (i, j) = move
     board[i][j] = player
-    for direction in DIRECTIONS:
+    for direction in key.DIRECTIONS:
         make_flips(move, player, board, direction)
     return board
 
@@ -145,7 +140,7 @@ def is_legal(board, player, move):
     def has_bracket(direction):
         return find_bracket(move, player, board, direction)
     (i, j) = move
-    return board[i][j] == EMPTY and any(map(has_bracket, DIRECTIONS))
+    return board[i][j] == key.EMPTY and any(map(has_bracket, key.DIRECTIONS))
 
 
 def has_legal_moves(player, board):
@@ -183,9 +178,9 @@ def score(board):
     score, oppscore = 0, 0
     for i in range(8):
         for j in range(8):
-            if board[i][j] == WHITE:
+            if board[i][j] == key.WHITE:
                 score += 1
-            if board[i][j] == BLACK:
+            if board[i][j] == key.BLACK:
                 oppscore += 1
     return score, oppscore
 
@@ -223,9 +218,9 @@ def play_othello():
     board = initialize_board()
     print("initial board:")
     show_board(board)
-    player = BLACK
+    player = key.BLACK
     while player is not None:
-        if player == WHITE:
+        if player == key.WHITE:
             print("\n\nit's your turn please make a valid move. ")
             while True:
                 move = (int(input()), input())
@@ -261,7 +256,7 @@ def result(board, action, player):
 
 def is_terminal_state(board):
     'returns True if no legal moves can be made on the board'
-    return True if has_legal_moves(WHITE, board) is False and has_legal_moves(BLACK, board) is False else False
+    return True if has_legal_moves(key.WHITE, board) is False and has_legal_moves(key.BLACK, board) is False else False
 
 
 def min_max_decision_with_pruning(board, depth):
@@ -269,9 +264,9 @@ def min_max_decision_with_pruning(board, depth):
 
     temp = -float("inf")
     alphabeta = [-float("inf"), float("inf")]
-    for action in legal_moves(board, BLACK):
+    for action in legal_moves(board, key.BLACK):
         current = min_value_with_pruning(
-            result(board, action, BLACK), BLACK, alphabeta, depth)
+            result(board, action, key.BLACK), key.BLACK, alphabeta, depth)
         if current > temp:
             selected_action = action
             temp = current
@@ -323,7 +318,7 @@ def min_value_with_pruning(board, player, alphabeta, depth):
 def heuristic_evaluation(board, player):
     'returns evaluation of the board based on number of discs of the player,'
     'mobility of the player and the number of corner discs of the player'
-    return (DISCCOUNTWEIGHT * no_of_discs(board, player)) + (MOBILITYWEIGHT * no_of_legal_moves(board, player)) + (CORNERWEIGHT * no_of_corners(board, player))
+    return (key.DISCCOUNTWEIGHT * no_of_discs(board, player)) + (key.MOBILITYWEIGHT * no_of_legal_moves(board, player)) + (key.CORNERWEIGHT * no_of_corners(board, player))
 
 
 def no_of_discs(board, player):
