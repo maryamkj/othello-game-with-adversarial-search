@@ -208,8 +208,17 @@ def play_othello(size=8):
     show_board(board)
     player = BLACK
     while player is not None:
-        print("\n\nplease wait for " + str(player) + "  to make a move ")
-        move = min_max_decision_with_pruning(board, player)
+        if player == WHITE:
+            print("\n\nit's your turn please make a valid move. ")
+            while True:
+                move = (int(input()), input())
+                move = input_move_converter(move)
+                if is_valid(board, move) and is_legal(board, player, move):
+                    break
+                print("you cannot make this move please try again.\n")
+        else:
+            print("\n\nplease wait for " + str(player) + "  to make a move. ")
+            move = min_max_decision_with_pruning(board, player)
         print("the selected move is = ", print_move_converter(move))
         'minmax returns the location of the place we want to move in'
         make_move(move, board, player)
